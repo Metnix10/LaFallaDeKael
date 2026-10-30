@@ -79,7 +79,6 @@ export function iniciarJuego() {
     crearPared(0, -25, 50, 1); crearPared(0, 25, 50, 1);
     crearPared(-25, 0, 1, 50); crearPared(25, 0, 1, 50);
 
-    // El personaje se representa con una cápsula/cubo de juego hasta que se añada un modelo de jugador.
     const jugador = new THREE.Mesh(
         new THREE.CapsuleGeometry(0.42, 0.7, 4, 8),
         new THREE.MeshStandardMaterial({ color: 0x48cfff, roughness: 0.38, metalness: 0.25, emissive: 0x062638 })
@@ -87,6 +86,9 @@ export function iniciarJuego() {
     jugador.position.set(0, 0.82, 12);
     jugador.castShadow = true;
     scene.add(jugador);
+
+    // const jugadorBoxHelper = new THREE.BoxHelper(jugador, 0x00ffff);
+    // scene.add(jugadorBoxHelper);
 
     const cargadorGLTF = new GLTFLoader();
     const cargadorMTL = new MTLLoader();
@@ -104,7 +106,17 @@ export function iniciarJuego() {
         daga: { tipo: 'gltf', ruta: 'assets/modelos/Daga/source/fantasy_dagger.glb' },
         armadura: { tipo: 'gltf', ruta: 'assets/modelos/Armadura/source/scifi_armor.glb' },
         caballero: { tipo: 'gltf', ruta: 'assets/modelos/Caballero Oscuro/source/dark_knight.glb' },
-        troll: { tipo: 'obj', base: 'assets/modelos/Troll/source/Trolloc_com_cara_de_p_1107163050_obj/' }
+        troll: { tipo: 'obj', base: 'assets/modelos/Troll/source/Trolloc_com_cara_de_p_1107163050_obj/', obj: 'Trolloc_com_cara_de_p_1107163050.obj', mtl: 'Trolloc_com_cara_de_p_1107163050.mtl' },
+        plat: { tipo: 'obj', base: 'assets/modelos/plat/source/', obj: 'skylift_01_977de03af93efb9e.obj', mtl: 'skylift_01_977de03af93efb9e.mtl' },
+        med: { tipo: 'gltf', ruta: 'assets/modelos/med/future_first_aid_kit.glb' },
+        ship: { tipo: 'gltf', ruta: 'assets/modelos/ship/space_ship.glb' },
+        barrel: { tipo: 'gltf', ruta: 'assets/modelos/barrel/sci_-_fi_barrels_pack.glb' },
+        mach: { tipo: 'gltf', ruta: 'assets/modelos/mach/sci-fi_lab_machine.glb' },
+        window: { tipo: 'gltf', ruta: 'assets/modelos/window/scifi_windows.glb' },
+        watcht: { tipo: 'gltf', ruta: 'assets/modelos/watcht/watchtower_gamereadylowpoly.glb' },
+        build: { tipo: 'gltf', ruta: 'assets/modelos/build/brutalist_building.glb' },
+        build2: { tipo: 'gltf', ruta: 'assets/modelos/build2/brutalist_building.glb' },
+        build3: { tipo: 'gltf', ruta: 'assets/modelos/build3/.glb' },
     };
 
     function normalizarModelo(objeto, alturaObjetivo = 3.2) {
@@ -135,52 +147,105 @@ export function iniciarJuego() {
         });
     }
 
-    function cargarModelo(clave) {
-        return new Promise((resolve) => {
-            const conf = rutas[clave];
-            if (conf.tipo === 'gltf') {
-                cargadorGLTF.load(conf.ruta, gltf => {
-                    const objeto = gltf.scene;
-                    normalizarModelo(objeto, clave === 'caballero' ? 4.1 : 3.0);
-                    modelos[clave] = objeto;
-                    resolve(objeto);
-                }, undefined, err => { console.error('No se pudo cargar ' + clave, err); resolve(null); });
-            } else {
-                const base = conf.base;
-                cargadorMTL.setPath(base).load('Trolloc_com_cara_de_p_1107163050.mtl', materiales => {
+   function cargarModelo(clave) {
+    return new Promise((resolve) => {
+        const conf = rutas[clave];
+        
+        if (conf.tipo === 'gltf') {
+            cargadorGLTF.load(conf.ruta, gltf => {
+                const objeto = gltf.scene;
+                normalizarModelo(objeto, clave === 'caballero' ? 4.1 : 3.0);
+                modelos[clave] = objeto;
+                resolve(objeto);
+            }, undefined, err => { 
+                console.error('No se pudo cargar ' + clave, err); 
+                resolve(null); 
+            });
+        } else {
+            const base = conf.base;
+            
+            if (conf.mtl) {
+                cargadorMTL.setPath(base).load(conf.mtl, materiales => {
                     materiales.preload();
-                    cargadorOBJ.setMaterials(materiales).setPath(base).load('Trolloc_com_cara_de_p_1107163050.obj', objeto => {
-                        normalizarModelo(objeto, 4.2);
-                        modelos[clave] = objeto;
+                    cargadorOBJ.setMaterials(materiales).setPath(base).load(conf.obj, objeto => {
+                        normalizarModelo(objeto, 4.2); 
+                        modelos[clave] = objeto; 
                         resolve(objeto);
-                    }, undefined, err => {
-                        console.warn('No se pudo cargar el MTL del troll; intentando OBJ sin materiales', err);
-                        cargadorOBJ.setPath(base).load('Trolloc_com_cara_de_p_1107163050.obj', objeto => {
-                            const tex = new THREE.TextureLoader().load('assets/modelos/Troll/textures/Trolloc_com_cara_de_p_1107163050.png');
-                            tex.colorSpace = THREE.SRGBColorSpace;
-                            objeto.traverse(n => { if (n.isMesh) n.material = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.85 }); });
-                            normalizarModelo(objeto, 4.2); modelos[clave] = objeto; resolve(objeto);
-                        }, undefined, () => resolve(null));
-                    });
+                    }, undefined, () => resolve(null));
                 }, undefined, () => {
-                    cargadorOBJ.setPath(base).load('Trolloc_com_cara_de_p_1107163050.obj', objeto => { normalizarModelo(objeto, 4.2); modelos[clave] = objeto; resolve(objeto); }, undefined, () => resolve(null));
+                    console.warn('Fallo el MTL, cargando OBJ sin materiales para: ' + clave);
+                    cargadorOBJ.setPath(base).load(conf.obj, objeto => { 
+                        normalizarModelo(objeto, 4.2); 
+                        modelos[clave] = objeto; 
+                        resolve(objeto); 
+                    }, undefined, () => resolve(null));
+                });
+            } else {
+                cargadorOBJ.setPath(base).load(conf.obj, objeto => {
+                    normalizarModelo(objeto, 4.2); 
+                    modelos[clave] = objeto; 
+                    resolve(objeto);
+                }, undefined, err => {
+                    console.error('No se pudo cargar OBJ: ' + clave, err);
+                    resolve(null);
                 });
             }
-        });
-    }
+        }
+    });
+}
 
-    function ponerModelo(clave, x, z, objetivo = false) {
+   function ponerModelo(clave, x, z, objetivo = false) {
         const original = modelos[clave];
         if (!original) return null;
         const objeto = new THREE.Group();
-        const modelo = original.clone(true);
+        const modelo = original.clone(true); 
+
+        if (clave === 'ship') {
+            modelo.scale.set(1.5, 1.5, 1.5);
+        } else if (clave === 'barrel') {
+            modelo.scale.set(0.8, 0.8, 0.8); 
+        } else if (clave === 'mach') {
+            modelo.scale.set(1.5, 1.5, 1.5); 
+        } else if (clave === 'window') {
+            modelo.scale.set(1.0, 1.0, 1.0); 
+        } else if (clave === 'watcht') {
+            modelo.scale.set(5.0, 5.0, 5.0); 
+        } else if (clave === 'build') {
+            modelo.scale.set(3.0, 3.0, 3.0); 
+        } else if (clave === 'build2') {
+            modelo.scale.set(4.0, 4.0, 4.0); 
+        }
+
         objeto.add(modelo);
-        objeto.position.set(x, 0, z);
-        objeto.rotation.y = clave === 'daga' ? -0.25 : Math.PI * 0.08;
+
+        let alturaY = 0;
+        if (clave === 'window') {
+            alturaY = 1.5;
+        }
+        objeto.position.set(x, alturaY, z);
+
+        if (clave === 'ship') {
+            objeto.rotation.y = Math.PI; 
+        } else if (clave === 'window') {
+            objeto.rotation.y = Math.PI * 0.5;
+        } else if (clave === 'build') {
+            objeto.rotation.y = Math.PI * 0.5;
+        } else if (clave === 'build2') {
+            objeto.rotation.y = Math.PI * 0.004;
+        } else {
+            objeto.rotation.y = clave === 'daga' ? -0.25 : Math.PI * 0.08;
+        } 
+
         scene.add(objeto);
+
         const caja = new THREE.Box3().setFromObject(objeto);
+
+        // const helper = new THREE.BoxHelper(objeto, 0xff0000); 
+        // scene.add(helper);
+
         const registro = { objeto, caja, clave, objetivo };
         colisionables.push(registro);
+        
         return registro;
     }
 
@@ -232,17 +297,18 @@ export function iniciarJuego() {
         jugador.position.set(0, 0.82, 12);
         jugador.material.color.setHex(indice === 0 ? 0x48cfff : indice === 1 ? 0xffbd76 : 0x8bffe0);
 
-        // El objeto de cada nivel es la meta de colisión; los demás modelos funcionan como obstáculos del escenario.
         const meta = config.objetivo;
         const posiciones = {
-            daga: [-10, -7], armadura: [10, -7], caballero: [0, -11], troll: [0, -1]
+            daga: [-10, -7], armadura: [10, -7], caballero: [0, -11], troll: [0, -5], plat: [-9, -19], med: [21, -1], 
+            ship: [6, 13], barrel: [20, -21], mach: [22, -15], window: [-5, -20.2], watcht: [-18, -18], build: [-18, 9],
+            build2: [16, 18], build3: [-18, -18]
         };
-        for (const clave of ['daga', 'armadura', 'caballero', 'troll']) {
+        for (const clave of ['daga', 'armadura', 'caballero', 'troll', 'plat', 'med', 'ship', 'barrel', 'mach', 'window', 'watcht', 'build', 'build2', 'build3']) {
             const [x, z] = posiciones[clave];
             const registro = ponerModelo(clave, x, z, clave === meta);
             if (registro && clave === meta) objetivoActual = registro;
         }
-        // Marca luminosa junto a la meta para que sea fácil encontrarla.
+        
         if (objetivoActual) {
             const aura = new THREE.PointLight(config.direccional, 22, 9);
             aura.position.set(objetivoActual.objeto.position.x, 2.3, objetivoActual.objeto.position.z);
@@ -261,17 +327,18 @@ export function iniciarJuego() {
         );
     }
 
-    function comprobarColisiones(posicionAnterior) {
+   function comprobarColisiones(posicionAnterior) {
         const cajaJugador = cajasJugador();
+        
         for (const pared of paredes) {
             if (cajaJugador.intersectsBox(pared)) {
                 jugador.position.copy(posicionAnterior);
                 return;
             }
         }
+        
         for (const c of colisionables) {
             c.caja.setFromObject(c.objeto);
-            // La meta se activa por contacto; los otros modelos son sólidos y bloquean el paso.
             if (cajaJugador.intersectsBox(c.caja)) {
                 if (c.objetivo) {
                     if (c.aura) scene.remove(c.aura);
@@ -283,7 +350,8 @@ export function iniciarJuego() {
                     }
                     return;
                 }
-                jugador.position.copy(posicionAnterior);
+                
+                jugador.position.copy(posicionAnterior); 
                 return;
             }
         }

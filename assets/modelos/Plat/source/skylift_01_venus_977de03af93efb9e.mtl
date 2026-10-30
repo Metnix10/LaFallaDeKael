@@ -1,0 +1,101 @@
+# Blender 4.2.17 LTS MTL File: 'None'
+# www.blender.org
+
+newmtl models_industrial_textures_skylift_01_venus
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1000.000000
+d 1.000000
+illum 2
+map_Kd skylift_01_venus.png
+map_Bump -bm 1.000000 skylift_01_venus_local.png
+
+newmtl models_tech_textures_knobs_01
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1000.000000
+d 1.000000
+illum 2
+map_Kd knobs_01.png
+map_Bump -bm 1.000000 knobs_01_local.png
+
+newmtl models_vehicles_civilian_forklifter_01_textures_forklifter_body
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1000.000000
+d 1.000000
+illum 2
+map_Kd forklifter_body_01.png
+map_Bump -bm 1.000000 forklifter_body_01_local.png
+
+newmtl models_vehicles_civilian_forklifter_01_textures_keyhole_01
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1000.000000
+d 1.000000
+illum 2
+map_Kd keyhole_01.png
+map_Bump -bm 1.000000 keyhole_01_local.png
+
+newmtl models_vehicles_civilian_forklifter_01_textures_stick_01
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1000.000000
+d 1.000000
+illum 2
+map_Kd stick_01.png
+map_Bump -bm 1.000000 stick_01_local.png
+
+newmtl models_vehicles_civilian_forklifter_01_textures_stopbutton_01
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1000.000000
+d 1.000000
+illum 2
+map_Kd stopbutton_01.png
+map_Bump -bm 1.000000 stopbutton_01_local.png
+
+newmtl textures_tiles_floors_metal_grating_floor_03
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1000.000000
+d 1.000000
+illum 2
+map_Kd metal_grating_floor_03.png
+map_Bump -bm 1.000000 metal_grating_floor_03_local.png
+
+newmtl textures_tiles_metal_galvenized_01
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1000.000000
+d 1.000000
+illum 2
+map_Kd galvenized_01.png
+map_Bump -bm 1.000000 galvenized_01_local.png
+
+newmtl textures_tiles_metal_iron_dirty_01
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1000.000000
+d 1.000000
+illum 2
+map_Kd iron_dirty_01.png
+map_Bump -bm 1.000000 iron_dirty_01_local.png
