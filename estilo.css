@@ -1,0 +1,311 @@
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #040612;
+    color: #FFFFFF;
+}
+
+/* CONTENEDOR PRINCIPAL*/
+#game-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+}
+
+/*  WEBGL */
+#webgl-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+/* UI GENERAL */
+#ui {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* HUD  */
+.ui-hud {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+    font-weight: 800;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+}
+
+/* Oculta elementos */
+.hidden {
+    display: none !important;
+}
+
+/* PANTALLAS  */
+.ui-pantalla {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    pointer-events: auto;
+}
+
+/* Fondo del menú principal y pantallas  */
+#main-menu,
+.vent {
+    background: url('assets/PP.png') no-repeat center center / cover;
+}
+
+.vent {
+    background-color: rgba(4, 6, 18, 0.4);
+}
+
+/* Parte oscura */
+.pantalla-cont {
+    background: rgba(12, 18, 36, 0.75);
+    border: 1px solid rgba(72, 207, 255, 0.3);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), inset 0 0 15px rgba(36, 85, 195, 0.3);
+    border-radius: 28px;
+    padding: 35px 45px;
+    min-width: 380px;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.pantalla-cont h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    margin-bottom: 25px;
+    color: #FFFFFF;
+}
+
+/* LOGO */
+.logo-img {
+    max-width: 380px;
+    width: 80vw;
+    height: auto;
+    margin-bottom: 30px;
+}
+
+/* BOTONES */
+.menu-botones {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+    max-width: 300px;
+    align-items: center;
+}
+
+.btn-capsula {
+    width: 100%;
+    background: rgba(10, 16, 32, 0.85);
+    color: #FFFFFF;
+    border: 2px solid #389BFF;
+    box-shadow: 0 0 12px rgba(56, 155, 255, 0.5), inset 0 0 8px rgba(56, 155, 255, 0.3);
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-capsula:hover {
+    background: #389BFF;
+    color: #040612;
+    box-shadow: 0 0 20px #389BFF;
+}
+
+.btn-capsula.sm {
+    width: auto;
+    min-width: 120px;
+    padding: 8px 20px;
+    font-size: 0.9rem;
+}
+
+
+/* CONFIGURACIONES  */
+.field-group {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.field-group label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    color: #E0E8FF;
+}
+
+.slider-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: center;
+}
+
+input[type=range] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    background: #1A264A;
+    border-radius: 5px;
+    outline: none;
+}
+
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #48CFFF;
+    box-shadow: 0 0 10px #48CFFF;
+    cursor: pointer;
+}
+
+.btn-graficos {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.btn-opcion {
+    flex: 1;
+    background: rgba(10, 16, 32, 0.6);
+    color: #FFFFFF;
+    border: 1px solid #389BFF;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-opcion.activo,
+.btn-opcion:hover {
+    background: #389BFF;
+    box-shadow: 0 0 10px #389BFF;
+}
+
+.btn-menu {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+/* TABLA DE PUNTUACIONES */
+#puntos-tabla {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+}
+
+#puntos-tabla th {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 8px;
+    letter-spacing: 1px;
+    color: #48CFFF;
+}
+
+#puntos-tabla td {
+    padding: 8px;
+    color: #F5F7FF;
+}
+/* HUD del nivel y mensajes de transición */
+#hud-nivel {
+    position: absolute;
+    top: 64px;
+    left: 20px;
+    max-width: calc(100vw - 40px);
+    padding: 9px 15px;
+    border: 1px solid rgba(72, 207, 255, 0.55);
+    border-radius: 12px;
+    background: rgba(5, 10, 28, 0.72);
+    color: #b9f2ff;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    box-shadow: 0 0 16px rgba(56, 155, 255, 0.2);
+}
+
+#aviso-nivel {
+    position: absolute;
+    z-index: 5;
+    left: 50%;
+    bottom: 9%;
+    transform: translate(-50%, 12px);
+    max-width: min(90vw, 700px);
+    padding: 16px 24px;
+    border: 1px solid rgba(104, 240, 208, 0.75);
+    border-radius: 14px;
+    background: rgba(5, 10, 28, 0.88);
+    color: #fff;
+    text-align: center;
+    font-weight: 800;
+    letter-spacing: 1.4px;
+    box-shadow: 0 0 28px rgba(72, 207, 255, 0.22);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease, transform .25s ease;
+}
+
+#aviso-nivel.visible {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+@media (max-width: 650px) {
+    .ui-hud { padding: 12px; font-size: .76rem; flex-wrap: wrap; gap: 8px; }
+    #hud-nivel { top: 88px; left: 12px; font-size: .7rem; }
+    .pantalla-cont { min-width: 0; width: calc(100vw - 32px); padding: 28px 22px; }
+}
+#hud-controles {
+    position: absolute;
+    top: 112px;
+    right: 20px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: rgba(5, 10, 28, 0.68);
+    color: rgba(255,255,255,.8);
+    font-size: .72rem;
+    letter-spacing: .8px;
+}
+@media (max-width: 650px) {
+    #hud-controles { top: 132px; right: 12px; font-size: .62rem; }
+}

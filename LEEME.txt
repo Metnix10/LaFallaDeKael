@@ -1,0 +1,31 @@
+LA FALLA DE KAEL — VERSIÓN CON 3 NIVELES
+
+REQUISITOS
+- Navegador moderno con WebGL.
+- Ejecutar el proyecto desde un servidor HTTP local. No abras index.html directamente con file://.
+- Se requiere conexión a internet para cargar Three.js y sus addons desde unpkg (importmap).
+
+CÓMO EJECUTARLO
+1. Descomprime la carpeta LaFallaDeKael.
+2. Abre la carpeta en Visual Studio Code.
+3. Instala la extensión Live Server si no la tienes.
+4. Haz clic derecho en index.html y selecciona “Open with Live Server”.
+5. Presiona JUGAR.
+
+CONTROLES
+- W / A / S / D o flechas: moverse.
+- ESC: pausar.
+- En pausa, REANUDAR vuelve al juego y MENÚ regresa al menú principal.
+
+CAMBIOS INCLUIDOS
+- Carga de los modelos GLB de Daga, Armadura y Caballero Oscuro con GLTFLoader, conservando materiales y texturas embebidas.
+- Carga del Troll en OBJ/MTL con su textura.
+- Iluminación ambiental, luz direccional con sombras y luz de relleno.
+- Suelo con material PBR, cuadrícula y límites físicos del escenario.
+- Colisiones con los modelos y las paredes; el objeto objetivo de cada nivel cambia el nivel al tocarlo.
+- Tres ambientes: Cripta, Bosque Carmesí y Trono de Kael; cada uno modifica cielo, niebla, suelo, luces y color del jugador.
+- Cámara que sigue al jugador, HUD de nivel, avisos de transición y final del juego.
+
+NOTAS
+- Los modelos son grandes; la primera carga puede tardar un poco.
+- El movimiento y las colisiones son locales. El proyecto no necesita el servidor WebSocket para esta versión del juego.
