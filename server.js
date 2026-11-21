@@ -1,27 +1,52 @@
-
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const WebSocket = require('ws');
+const mysql = require('mysql2/promise');
 
 const PUERTO = process.env.PORT || 8080;
 const RAIZ = __dirname;
-
-// ALMACENAMIENTO
 const ARCHIVO = path.join(RAIZ, 'puntuaciones.json');
 
+// CONEXIÓN A MYSQL
+const pool = mysql.createPool({
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'lafalladekael',
+    waitForConnections: true,
+    connectionLimit: 5
+});
+
+// Respaldo en JSON por si MySQL no está encendido
 function leerArchivo() {
     try { return JSON.parse(fs.readFileSync(ARCHIVO, 'utf8')); } catch { return []; }
 }
 
-function obtenerPuntuaciones() {
-    return leerArchivo().sort((a, b) => b.puntos - a.puntos).slice(0, 10);
+async function obtenerPuntuaciones() {
+    try {
+        const [filas] = await pool.query(
+            'SELECT nombre, puntos, modo, dificultad, fecha FROM puntuaciones ORDER BY puntos DESC LIMIT 10'
+        );
+        return filas;
+    } catch (err) {
+        console.warn('MySQL no disponible, leyendo puntuaciones.json:', err.code);
+        return leerArchivo().sort((a, b) => b.puntos - a.puntos).slice(0, 10);
+    }
 }
 
-function guardarPuntuacion(p) {
-    const lista = leerArchivo();
-    lista.push({ ...p, fecha: new Date().toISOString() });
-    fs.writeFileSync(ARCHIVO, JSON.stringify(lista, null, 2));
+async function guardarPuntuacion(p) {
+    try {
+        await pool.query(
+            'INSERT INTO puntuaciones (nombre, puntos, modo, dificultad) VALUES (?, ?, ?, ?)',
+            [p.nombre, p.puntos, p.modo, p.dificultad]
+        );
+    } catch (err) {
+        console.warn('MySQL no disponible, guardando en puntuaciones.json:', err.code);
+        const lista = leerArchivo();
+        lista.push({ ...p, fecha: new Date().toISOString() });
+        fs.writeFileSync(ARCHIVO, JSON.stringify(lista, null, 2));
+    }
 }
 
 // Revisa que los datos recibidos sean válidos
@@ -34,7 +59,7 @@ function validar(datos) {
     return { nombre, puntos, modo, dificultad };
 }
 
-// SERVIDOR HTTP 
+// SERVIDOR HTTP
 const TIPOS = {
     '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript',
     '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
@@ -61,7 +86,8 @@ async function manejarAPI(req, res) {
     }
     try {
         if (req.method === 'GET') {
-            return responderJSON(res, 200, obtenerPuntuaciones());
+            const lista = await obtenerPuntuaciones();
+            return responderJSON(res, 200, lista);
         }
         if (req.method === 'POST') {
             let cuerpo = '';
@@ -73,7 +99,7 @@ async function manejarAPI(req, res) {
                 try {
                     const datos = validar(JSON.parse(cuerpo));
                     if (!datos) return responderJSON(res, 400, { error: 'Datos inválidos' });
-                    guardarPuntuacion(datos);
+                    await guardarPuntuacion(datos);
                     responderJSON(res, 201, { ok: true });
                 } catch (e) {
                     responderJSON(res, 500, { error: 'No se pudo guardar' });
@@ -111,7 +137,7 @@ const servidor = http.createServer((req, res) => {
     servirArchivo(req, res);
 });
 
-//  MULTIJUGADOR 
+// MULTIJUGADOR
 const wss = new WebSocket.Server({ server: servidor });
 const jugadores = {};
 
@@ -120,7 +146,6 @@ wss.on('connection', (ws) => {
     console.log('Jugador conectado:', id);
     ws.send(JSON.stringify({ type: 'bienvenida', id }));
 
-    // Le mandamos al nuevo jugador dónde están los demás
     for (const otroId in jugadores) {
         ws.send(JSON.stringify({ type: 'actualizacion', id: otroId, ...jugadores[otroId] }));
     }
@@ -149,6 +174,13 @@ wss.on('connection', (ws) => {
     });
 });
 
-servidor.listen(PUERTO, () => {
+servidor.listen(PUERTO, async () => {
     console.log(`Servidor activo: http://localhost:${PUERTO}`);
+    try {
+        const conn = await pool.getConnection();
+        console.log('Conectado a MySQL (lafalladekael) ✓');
+        conn.release();
+    } catch (e) {
+        console.warn('Aviso: MySQL no respondió (usando puntuaciones.json hasta que enciendas MySQL).');
+    }
 });

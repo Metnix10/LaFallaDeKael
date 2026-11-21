@@ -3,6 +3,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
 import { conectarServidor, enviarPosicion, actualizarOtrosJugadores } from './multijugador.js';
+import { reproducirSonido } from './sonido.js';
 
 const NIVELES = [
     {
@@ -444,30 +445,33 @@ function aplicarCalidad(calidad) {
 function recoger(item) {
     grupoNivel.remove(item.objeto);
     if (item.tipo === 'nucleo') {
+        reproducirSonido('nucleo');
         sumarPuntos(250);
         estado.nucleos++;
         estado.nucleosNivel++;
         if (estado.modo === 'aventura' && estado.nucleosNivel === 3 && objetivo) {
             objetivo.aura.intensity = 25;
+            setTimeout(() => reproducirSonido('portal'), 250);
             mostrarAviso('¡PORTAL ACTIVO! VE POR EL OBJETIVO BRILLANTE');
         }
     } else if (item.tipo === 'med') {
+        reproducirSonido('curar');
         sumarPuntos(100);
         estado.vidas = Math.min(estado.vidas + 1, estado.dif.vidas);
         mostrarAviso('BOTIQUÍN · +1 VIDA', 1500);
     } else if (item.tipo === 'barrel') {
+        reproducirSonido('turbo');
         sumarPuntos(100);
         estado.turboHasta = estado.t + 6;
         mostrarAviso('BARRIL DE ENERGÍA · ¡TURBO 6s!', 1500);
     }
-    // En supervivencia los ítems vuelven a aparecer en otro lugar
     if (estado.modo === 'supervivencia') crearItem(item.tipo, ...posicionLibre(6));
 }
 
 function recibirGolpe(enemigo) {
+    reproducirSonido('golpe');
     estado.vidas--;
     estado.invulnerableHasta = estado.t + 1.5;
-    // Empujón hacia atrás
     const dx = jugador.position.x - enemigo.objeto.position.x;
     const dz = jugador.position.z - enemigo.objeto.position.z;
     const largo = Math.hypot(dx, dz) || 1;
@@ -478,6 +482,7 @@ function recibirGolpe(enemigo) {
 function completarNivel() {
     sumarPuntos(1000 + Math.floor(estado.tiempo) * 10);
     if (estado.nivel < NIVELES.length - 1) {
+        reproducirSonido('nivel');
         const mensaje = NIVELES[estado.nivel].mensaje;
         construirNivel(estado.nivel + 1);
         estado.tiempo = TIEMPO_AVENTURA;
@@ -488,6 +493,7 @@ function completarNivel() {
 }
 
 function terminar(gano, motivo) {
+    reproducirSonido(gano ? 'victoria' : 'derrota');
     estado.activo = false;
     jugador.visible = true;
     enviarPosicion(jugador.position, -1);
@@ -546,6 +552,7 @@ function actualizarJuego(delta) {
         if (estado.t >= estado.siguienteRefuerzo && enemigos.length < 10) {
             crearEnemigo(...posicionLibre(12));
             estado.siguienteRefuerzo += 15;
+            reproducirSonido('alerta');
             mostrarAviso('¡LLEGAN MÁS TROLLS!', 1500);
         }
         if (estado.tiempo <= 0) return terminar(true, '¡Sobreviviste a la horda!');
@@ -577,6 +584,7 @@ function actualizarJuego(delta) {
             } else {
                 jugador.position.copy(anterior);
                 if (estado.t > estado.avisoBloqueo) {
+                    reproducirSonido('alerta');
                     mostrarAviso('NECESITAS 3 NÚCLEOS PARA ACTIVARLO', 1500);
                     estado.avisoBloqueo = estado.t + 2;
                 }
@@ -613,7 +621,7 @@ function actualizarJuego(delta) {
 function animar() {
     requestAnimationFrame(animar);
     const delta = Math.min(reloj.getDelta(), 0.05);
-    const jugando = estado && estado.activo;
+    const jugando = estado && estado.activo && !estado.pausado;
 
     if (jugando) actualizarJuego(delta);
     actualizarOtrosJugadores(delta, estado && estado.activo ? estado.nivel : -99);
@@ -641,20 +649,21 @@ export async function iniciarJuego(opciones = {}) {
     aplicarCalidad(calidad);
     const dif = DIFICULTADES[dificultad] || DIFICULTADES.facil;
     estado = {
-        modo, dificultad, dif,
-        nivel: 0,
-        vidas: dif.vidas,
-        puntos: 0,
-        nucleos: 0,
-        nucleosNivel: 0,
-        tiempo: modo === 'aventura' ? TIEMPO_AVENTURA : TIEMPO_SUPERVIVENCIA,
-        t: 0,
-        invulnerableHasta: 0,
-        turboHasta: 0,
-        avisoBloqueo: 0,
-        ultimoEnvio: 0,
-        siguienteRefuerzo: 15,
-        activo: true
+    modo, dificultad, dif,
+    nivel: 0,
+    vidas: dif.vidas,
+    puntos: 0,
+    nucleos: 0,
+    nucleosNivel: 0,
+    tiempo: modo === 'aventura' ? TIEMPO_AVENTURA : TIEMPO_SUPERVIVENCIA,
+    t: 0,
+    invulnerableHasta: 0,
+    turboHasta: 0,
+    avisoBloqueo: 0,
+    ultimoEnvio: 0,
+    siguienteRefuerzo: 15,
+    activo: true,
+    pausado: false
     };
     Object.keys(teclas).forEach(k => teclas[k] = false);
 
@@ -676,4 +685,11 @@ export function salirAlMenu() {
 
 export function alTerminar(fn) {
     alTerminarCallback = fn;
+}
+
+export function alternarPausa(forzar) {
+    if (!estado || !estado.activo) return null;
+    estado.pausado = typeof forzar === 'boolean' ? forzar : !estado.pausado;
+    Object.keys(teclas).forEach(k => teclas[k] = false);
+    return estado.pausado;
 }

@@ -1,5 +1,6 @@
-import { iniciarJuego, salirAlMenu, alTerminar } from './main.js';
 import { leerConfig, guardarConfig, guardarPuntuacion, obtenerPuntuaciones } from './api.js';
+import { reproducirSonido, ajustarVolumen } from './sonido.js';
+import { iniciarJuego, salirAlMenu, alTerminar, alternarPausa } from './main.js';
 
 const $ = id => document.getElementById(id);
 
@@ -10,7 +11,8 @@ const modoPantalla = $('modo-pantalla');
 const configPantalla = $('config-pantalla');
 const puntuacionesPantalla = $('puntuaciones-pantalla');
 const finPantalla = $('fin-pantalla');
-const pantallas = [mainMenu, hud, modoPantalla, configPantalla, puntuacionesPantalla, finPantalla];
+const pausaPantalla = $('pausa-pantalla');
+const pantallas = [mainMenu, hud, pausaPantalla, modoPantalla, configPantalla, puntuacionesPantalla, finPantalla];
 
 let config = leerConfig();
 let ultimaPartida = null;
@@ -103,8 +105,14 @@ document.querySelectorAll('[data-quality]').forEach(b => b.addEventListener('cli
     marcarActivo('[data-quality]', 'quality', b.dataset.quality);
 }));
 
+$('slider-volume').addEventListener('input', e => {
+    ajustarVolumen(e.target.value);
+});
+
 $('btn-guardar').addEventListener('click', () => {
     config.volumen = Number($('slider-volume').value);
+    ajustarVolumen(config.volumen);
+    reproducirSonido('click');
     const activo = document.querySelector('[data-quality].activo');
     config.calidad = activo ? activo.dataset.quality : 'media';
     guardarConfig(config);
@@ -148,3 +156,27 @@ $('btn-fin-menu').addEventListener('click', () => {
 // Redes sociales
 $('btn-compartir-fb').addEventListener('click', () => window.open('https://www.facebook.com', '_blank'));
 $('btn-compartir-x').addEventListener('click', () => window.open('https://x.com', '_blank'));
+
+document.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => reproducirSonido('click'));
+});
+
+// PAUSA (ESC y botones)
+window.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+        const pausado = alternarPausa();
+        if (pausado === null) return;
+        reproducirSonido('click');
+        mostrar(pausado ? pausaPantalla : hud);
+    }
+});
+
+$('btn-reanudar').addEventListener('click', () => {
+    alternarPausa(false);
+    mostrar(hud);
+});
+
+$('btn-salir-pausa').addEventListener('click', () => {
+    salirAlMenu();
+    mostrar(mainMenu);
+});
