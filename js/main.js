@@ -87,6 +87,59 @@ let objetivo = null;
 const teclas = {};
 let estado = null;
 
+// SISTEMA DE PARTÍCULAS
+let polvoAmbiental = null;
+const particulas = [];
+const geoParticula = new THREE.BoxGeometry(0.14, 0.14, 0.14);
+const matsParticula = new Map();
+
+function materialParticula(color) {
+    if (!matsParticula.has(color)) {
+        matsParticula.set(color, new THREE.MeshBasicMaterial({ color }));
+    }
+    return matsParticula.get(color);
+}
+
+function crearParticulas(pos, color, cantidad = 14, velocidad = 4.5) {
+    if (!grupoNivel) return;
+    const mat = materialParticula(color);
+    for (let i = 0; i < cantidad; i++) {
+        const mesh = new THREE.Mesh(geoParticula, mat);
+        mesh.position.set(pos.x, (pos.y || 0.6) + 0.3, pos.z);
+        const angulo = Math.random() * Math.PI * 2;
+        const fuerza = (0.3 + Math.random() * 0.7) * velocidad;
+        grupoNivel.add(mesh);
+        particulas.push({
+            mesh,
+            vx: Math.cos(angulo) * fuerza,
+            vy: 1.5 + Math.random() * velocidad * 0.8,
+            vz: Math.sin(angulo) * fuerza,
+            vida: 0.45 + Math.random() * 0.25,
+            vidaMax: 0.7
+        });
+    }
+}
+
+function actualizarParticulas(delta) {
+    if (polvoAmbiental) polvoAmbiental.rotation.y += delta * 0.04;
+
+    for (let i = particulas.length - 1; i >= 0; i--) {
+        const p = particulas[i];
+        p.vida -= delta;
+        if (p.vida <= 0) {
+            if (p.mesh.parent) p.mesh.parent.remove(p.mesh);
+            particulas.splice(i, 1);
+            continue;
+        }
+        p.vy -= 9.8 * delta;
+        p.mesh.position.x += p.vx * delta;
+        p.mesh.position.y = Math.max(0.05, p.mesh.position.y + p.vy * delta);
+        p.mesh.position.z += p.vz * delta;
+        p.mesh.rotation.x += delta * 6;
+        p.mesh.rotation.y += delta * 6;
+        p.mesh.scale.setScalar(Math.max(0.01, p.vida / p.vidaMax));
+    }
+}
 
 function crearMundo() {
     const canvas = document.getElementById('webgl-canvas');
@@ -141,6 +194,22 @@ function crearMundo() {
     grid.material.transparent = true;
     grid.material.opacity = 0.28;
     scene.add(grid);
+
+    // Partículas ambientales flotantes
+    const totalMotas = 180;
+    const posiciones = new Float32Array(totalMotas * 3);
+    for (let i = 0; i < totalMotas; i++) {
+        posiciones[i * 3] = (Math.random() - 0.5) * 48;
+        posiciones[i * 3 + 1] = 0.4 + Math.random() * 6.5;
+        posiciones[i * 3 + 2] = (Math.random() - 0.5) * 48;
+    }
+    const geoPolvo = new THREE.BufferGeometry();
+    geoPolvo.setAttribute('position', new THREE.BufferAttribute(posiciones, 3));
+    polvoAmbiental = new THREE.Points(
+        geoPolvo,
+        new THREE.PointsMaterial({ color: NIVELES[0].direccional, size: 0.16, transparent: true, opacity: 0.65 })
+    );
+    scene.add(polvoAmbiental);
 
     // Paredes del escenario
     paredMaterial = new THREE.MeshStandardMaterial({ color: 0x202940, roughness: 0.8, metalness: 0.15 });
@@ -322,6 +391,9 @@ function construirNivel(indice) {
     items.length = 0;
     objetivo = null;
 
+    particulas.length = 0;
+    if (polvoAmbiental) polvoAmbiental.material.color.setHex(c.direccional);
+
     // Ambientación
     scene.background.setHex(c.cielo);
     scene.fog.color.setHex(c.cielo);
@@ -443,24 +515,29 @@ function aplicarCalidad(calidad) {
 
 //  LÓGICA DEL JUEGO
 function recoger(item) {
+    const pos = item.objeto.position;
     grupoNivel.remove(item.objeto);
     if (item.tipo === 'nucleo') {
         reproducirSonido('nucleo');
+        crearParticulas(pos, 0x48cfff, 20, 5.5);
         sumarPuntos(250);
         estado.nucleos++;
         estado.nucleosNivel++;
         if (estado.modo === 'aventura' && estado.nucleosNivel === 3 && objetivo) {
             objetivo.aura.intensity = 25;
+            crearParticulas(objetivo.objeto.position, 0xffd700, 30, 6.5);
             setTimeout(() => reproducirSonido('portal'), 250);
             mostrarAviso('¡PORTAL ACTIVO! VE POR EL OBJETIVO BRILLANTE');
         }
     } else if (item.tipo === 'med') {
         reproducirSonido('curar');
+        crearParticulas(pos, 0x4dff88, 16, 4.5);
         sumarPuntos(100);
         estado.vidas = Math.min(estado.vidas + 1, estado.dif.vidas);
         mostrarAviso('BOTIQUÍN · +1 VIDA', 1500);
     } else if (item.tipo === 'barrel') {
         reproducirSonido('turbo');
+        crearParticulas(pos, 0xffaa00, 18, 5.0);
         sumarPuntos(100);
         estado.turboHasta = estado.t + 6;
         mostrarAviso('BARRIL DE ENERGÍA · ¡TURBO 6s!', 1500);
@@ -470,6 +547,7 @@ function recoger(item) {
 
 function recibirGolpe(enemigo) {
     reproducirSonido('golpe');
+    crearParticulas(jugador.position, 0xff3b5c, 18, 5.0);
     estado.vidas--;
     estado.invulnerableHasta = estado.t + 1.5;
     const dx = jugador.position.x - enemigo.objeto.position.x;
@@ -614,6 +692,11 @@ function actualizarJuego(delta) {
         enviarPosicion(jugador.position, estado.nivel);
         estado.ultimoEnvio = estado.t;
     }
+
+    if (estado.t < estado.turboHasta && Math.random() < 0.45) {
+        crearParticulas(jugador.position, 0xffaa00, 1, 1.5);
+    }
+    actualizarParticulas(delta);
 
     actualizarHUD();
 }
