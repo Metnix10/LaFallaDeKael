@@ -14,7 +14,6 @@
     }
 }
 </script>
-    
 </head>
 <body>
     <div id="game-container">
@@ -22,7 +21,7 @@
 
         <!-- Interfaz de usuario  -->
         <div id="ui">
-            
+
             <!-- MENÚ PRINCIPAL -->
             <div id="main-menu" class="ui-pantalla">
                 <h1 class="titulo">
@@ -35,11 +34,42 @@
                 </div>
             </div>
 
+            <!-- SELECCIÓN DE MODO Y DIFICULTAD -->
+            <div id="modo-pantalla" class="ui-pantalla vent hidden">
+                <div class="pantalla-cont">
+                    <h2>NUEVA PARTIDA</h2>
+                    <div class="field-group">
+                        <label for="input-nombre">NOMBRE</label>
+                        <input type="text" id="input-nombre" class="texto-input" maxlength="12" placeholder="JUGADOR">
+                    </div>
+                    <div class="field-group">
+                        <label>MODO DE JUEGO</label>
+                        <div class="btn-graficos">
+                            <button type="button" class="btn-opcion activo" data-modo="aventura">AVENTURA</button>
+                            <button type="button" class="btn-opcion" data-modo="supervivencia">SUPERVIVENCIA</button>
+                        </div>
+                    </div>
+                    <div class="field-group">
+                        <label>DIFICULTAD</label>
+                        <div class="btn-graficos">
+                            <button type="button" class="btn-opcion activo" data-dificultad="facil">FÁCIL</button>
+                            <button type="button" class="btn-opcion" data-dificultad="dificil">DIFÍCIL</button>
+                        </div>
+                    </div>
+                    <p id="modo-desc" class="modo-desc"></p>
+                    <div class="btn-menu">
+                        <button type="button" id="btn-comenzar" class="btn-capsula sm">COMENZAR</button>
+                        <button type="button" id="btn-volver-modo" class="btn-capsula sm">VOLVER</button>
+                    </div>
+                </div>
+            </div>
+
             <!-- HUD  -->
             <div id="hud" class="ui-hud hidden">
                 <div id="hud-nivel">NIVEL: 1/3 · LA CRIPTA</div>
                 <div id="hud-puntuacion">PUNTUACIÓN: <span id="puntuacion">0000</span></div>
-                <div id="hud-controles">MOVER: W A S D / FLECHAS · ESC: PAUSA</div>
+                <div id="hud-vidas">VIDAS: <span id="vidas">♥♥♥</span></div>
+                <div id="hud-controles">MOVER: W A S D / FLECHAS</div>
                 <div id="hud-tiempo">TIEMPO: <span id="tiempo">02:00</span></div>
                 <div id="hud-nucleos">NÚCLEOS: <span id="nucleos">0/3</span></div>
             </div>
@@ -79,27 +109,30 @@
                                 <th>#</th>
                                 <th>JUGADOR</th>
                                 <th>PUNTAJE</th>
+                                <th>MODO</th>
                             </tr>
                         </thead>
-                        <tbody id="puntos-body">
-                            <tr><td>1</td><td>PLAYER01</td><td>9850</td></tr>
-                            <tr><td>2</td><td>PLAYER01</td><td>9850</td></tr>
-                            <tr><td>3</td><td>PLAYER01</td><td>9850</td></tr>
-                            <tr><td>4</td><td>PLAYER01</td><td>9850</td></tr>
-                            <tr><td>5</td><td>PLAYER01</td><td>9850</td></tr>
-                        </tbody>
+                        <tbody id="puntos-body"></tbody>
                     </table>
+                    <p id="puntos-origen" class="nota"></p>
                     <button type="button" id="btn-volver-puntos" class="btn-capsula sm">VOLVER</button>
                 </div>
             </div>
 
-            <!-- PANTALLA DE PAUSA -->
-            <div id="pausa-pantalla" class="ui-pantalla vent hidden">
+            <!-- PANTALLA DE FIN DE PARTIDA -->
+            <div id="fin-pantalla" class="ui-pantalla fondo-juego hidden">
                 <div class="pantalla-cont">
-                    <h2>PAUSA</h2>
-                    <div class="menu-botones">
-                        <button type="button" id="btn-reanudar" class="btn-capsula">REANUDAR</button>
-                        <button type="button" id="btn-salir" class="btn-capsula">MENÚ</button>
+                    <h2 id="fin-titulo">GAME OVER</h2>
+                    <p id="fin-motivo" class="nota"></p>
+                    <div id="fin-puntos" class="fin-puntos">0</div>
+                    <p id="fin-guardado" class="nota"></p>
+                    <div class="btn-menu">
+                        <button type="button" id="btn-compartir-fb" class="btn-capsula sm btn-fb">FACEBOOK</button>
+                        <button type="button" id="btn-compartir-x" class="btn-capsula sm btn-x">X</button>
+                    </div>
+                    <div class="btn-menu">
+                        <button type="button" id="btn-reintentar" class="btn-capsula sm">REINTENTAR</button>
+                        <button type="button" id="btn-fin-menu" class="btn-capsula sm">MENÚ</button>
                     </div>
                 </div>
             </div>
@@ -108,6 +141,5 @@
     </div>
 
     <script type="module" src="js/ui.js"></script>
-    <script type="module" src="js/main.js"></script>
 </body>
 </html>

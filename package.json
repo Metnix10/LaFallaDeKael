@@ -1,10 +1,10 @@
 {
   "name": "lafalladekael",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "3.0.0",
+  "description": "La Falla de Kael - videojuego con Three.js",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "",

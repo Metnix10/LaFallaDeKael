@@ -309,3 +309,60 @@ input[type=range]::-webkit-slider-thumb {
 @media (max-width: 650px) {
     #hud-controles { top: 132px; right: 12px; font-size: .62rem; }
 }
+
+/* ===== AGREGADO 3RA ENTREGA ===== */
+.texto-input {
+    width: 100%;
+    padding: 10px 16px;
+    border-radius: 50px;
+    border: 2px solid #389BFF;
+    background: rgba(10, 16, 32, 0.85);
+    color: #FFFFFF;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-align: center;
+    text-transform: uppercase;
+    outline: none;
+    user-select: text;
+}
+
+.texto-input:focus {
+    box-shadow: 0 0 12px #389BFF;
+}
+
+.modo-desc {
+    font-size: 0.8rem;
+    color: #b9f2ff;
+    line-height: 1.4;
+    min-height: 3.6em;
+    margin: -6px 0 14px;
+}
+
+.nota {
+    font-size: 0.85rem;
+    color: #cfe0ff;
+    margin-bottom: 14px;
+}
+
+.fin-puntos {
+    font-size: 2.6rem;
+    font-weight: 800;
+    color: #48CFFF;
+    text-shadow: 0 0 18px rgba(72, 207, 255, 0.6);
+    margin-bottom: 6px;
+}
+
+.fondo-juego {
+    background: rgba(4, 6, 18, 0.6);
+}
+
+.btn-capsula.btn-fb { border-color: #4f7bff; }
+.btn-capsula.btn-fb:hover { background: #4f7bff; box-shadow: 0 0 20px #4f7bff; }
+.btn-capsula.btn-x { border-color: #d0d6e6; }
+.btn-capsula.btn-x:hover { background: #d0d6e6; box-shadow: 0 0 20px #d0d6e6; }
+
+#hud-vidas span {
+    color: #ff6b8a;
+    letter-spacing: 2px;
+}
