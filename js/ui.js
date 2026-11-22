@@ -1,6 +1,6 @@
 import { leerConfig, guardarConfig, guardarPuntuacion, obtenerPuntuaciones } from './api.js';
 import { reproducirSonido, ajustarVolumen } from './sonido.js';
-import { iniciarJuego, salirAlMenu, alTerminar, alternarPausa } from './main.js';
+import { iniciarJuego, salirAlMenu, alTerminar} from './main.js';
 
 const $ = id => document.getElementById(id);
 
@@ -11,8 +11,7 @@ const modoPantalla = $('modo-pantalla');
 const configPantalla = $('config-pantalla');
 const puntuacionesPantalla = $('puntuaciones-pantalla');
 const finPantalla = $('fin-pantalla');
-const pausaPantalla = $('pausa-pantalla');
-const pantallas = [mainMenu, hud, pausaPantalla, modoPantalla, configPantalla, puntuacionesPantalla, finPantalla];
+const pantallas = [mainMenu, hud, modoPantalla, configPantalla, puntuacionesPantalla, finPantalla];
 
 let config = leerConfig();
 let ultimaPartida = null;

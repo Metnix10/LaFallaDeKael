@@ -686,8 +686,7 @@ function actualizarJuego(delta) {
 
     // Parpadeo cuando te golpean
     jugador.visible = estado.t > estado.invulnerableHasta || Math.floor(estado.t * 10) % 2 === 0;
-
-    // Enviar posición al servidor ~15 veces por segundo
+    
     if (estado.t - estado.ultimoEnvio > 0.066) {
         enviarPosicion(jugador.position, estado.nivel);
         estado.ultimoEnvio = estado.t;
@@ -704,7 +703,7 @@ function actualizarJuego(delta) {
 function animar() {
     requestAnimationFrame(animar);
     const delta = Math.min(reloj.getDelta(), 0.05);
-    const jugando = estado && estado.activo && !estado.pausado;
+    const jugando = estado && estado.activo;
 
     if (jugando) actualizarJuego(delta);
     actualizarOtrosJugadores(delta, estado && estado.activo ? estado.nivel : -99);
@@ -746,7 +745,6 @@ export async function iniciarJuego(opciones = {}) {
     ultimoEnvio: 0,
     siguienteRefuerzo: 15,
     activo: true,
-    pausado: false
     };
     Object.keys(teclas).forEach(k => teclas[k] = false);
 
@@ -768,11 +766,4 @@ export function salirAlMenu() {
 
 export function alTerminar(fn) {
     alTerminarCallback = fn;
-}
-
-export function alternarPausa(forzar) {
-    if (!estado || !estado.activo) return null;
-    estado.pausado = typeof forzar === 'boolean' ? forzar : !estado.pausado;
-    Object.keys(teclas).forEach(k => teclas[k] = false);
-    return estado.pausado;
 }
